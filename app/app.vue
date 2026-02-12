@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import 'simpledotcss'
   import { provide } from 'vue'
 
   const route = useRoute()
