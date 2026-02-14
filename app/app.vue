@@ -42,6 +42,14 @@
 </template>
 
 <style>
+body {
+  display: block;
+}
+
+h1 {
+  text-align: center;
+}
+
 ul.nav {
   display: flex;
   background-color: #c70;

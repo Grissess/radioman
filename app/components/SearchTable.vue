@@ -13,6 +13,11 @@
   }
 
   const props = defineProps<Props>()
+  
+  type Emits = {
+    input: {field: string, value: any},
+  }
+  const emit = defineEmits<Emits>()
 
   const hasActions = computed(() => props.actions?.length > 0)
 
@@ -50,6 +55,9 @@
             <input
               type="text"
               v-model="searchTerms[field]"
+              @input="(event) => emit('input',
+                {field, value: event?.target?.value}
+              )"
             />
           </td>
           <td v-if="hasActions"/>
@@ -78,6 +86,7 @@
   border: 2px solid #000;
   border-collapse: collapse;
   font-family: monospace;
+  margin: auto;
 }
   
 .searchtable th, .searchtable td {

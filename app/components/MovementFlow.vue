@@ -99,11 +99,16 @@ import { isJSDocReturnTag } from 'typescript';
         returnComment.value = ''
         radioRefresh()
     }
+    
+    const bestName = ({dispName, realName}) => {
+        if(dispName) return dispName
+        return realName
+    }
 </script>
 
 <template>
     <p class="loginStatus">Logged in as
-        <span v-if="userData" class="emph">{{ userData.dispName }}.</span>
+        <span v-if="userData" class="emph">{{ bestName(userData) }}.</span>
         <span v-else class="emph error">{{ loginUid }}.</span>
         &nbsp;
         <button class="delete" @click="emit('logout', {})">Log Out</button>
@@ -116,9 +121,12 @@ import { isJSDocReturnTag } from 'typescript';
                 :fields="['identifier']"
                 rest-path="/api/radios"
                 :actions="radioActions"
+                @input="radioId = null"
             />
             <p v-if="radioId" class="info">
-                Selected radio <span class="emph">{{ radioId }} ({{ radioData?.identifier }})</span>.
+                Selected radio
+                <span v-if="radioData?.identifier" class="emph">{{ radioData?.identifier }}.</span>
+                <span v-else class="emph error">{{ radioId }}.</span>
                 &nbsp;<button class="delete" @click="radioId = null">Deselect</button>
             </p>
             <p v-if="radioData" class="info">
@@ -129,15 +137,6 @@ import { isJSDocReturnTag } from 'typescript';
                         {{ radioData.holder.dispName }}, {{ radioData.holder.realName }}.
                     </span>
                     <span v-else class="emph error">unknown user {{ radioData.holder.pid }}.</span>
-                    <form class="rows-center" @submit.prevent="returnRadio">
-                        <input type="text" v-model="returnComment" placeholder="Comment (optional)"/>
-                        <input
-                            type="datetime-local"
-                            :value="dateToDT(new Date(returnAt))"
-                            @input="(event) => returnAt = (new Date(event.target.value)).getTime()"
-                        />
-                        <button class="delete" type="submit">Return</button>
-                    </form>
                 </span>
                 <span v-else>available to check out.</span>
                 <div v-if="!radioData.moveComments">
@@ -145,10 +144,6 @@ import { isJSDocReturnTag } from 'typescript';
                 </div>
                 <div v-else>
                     Comments:
-                    <form class="rows-center" @submit.prevent="postComment">
-                        <textarea name="comment" v-model="customComment"></textarea>
-                        <button type="submit" class="use">Post</button>
-                    </form>
                     <div v-for="comment in radioData.moveComments" class="comment">
                         <div class="author">
                             <span v-if="comment.dispName">{{ comment.dispName }}</span>
@@ -165,9 +160,12 @@ import { isJSDocReturnTag } from 'typescript';
                 :fields="['dispName', 'realName']"
                 rest-path="/api/people"
                 :actions="peopleActions"
+                @input="personId = null"
             />
             <p v-if="personId" class="info">
-                Selected person <span class="emph">{{ personId }} ({{ personData?.dispName }}, {{ personData?.realName }})</span>.
+                Selected person
+                <span v-if="personData" class="emph">{{ personData?.dispName }} ({{ personData?.realName }}).</span>
+                <span v-else class="emph error">{{ personId }}.</span>
                 &nbsp;<button class="delete" @click="personId = null">Deselect</button>
             </p>
             <p v-if="personData" class="info">
@@ -186,20 +184,40 @@ import { isJSDocReturnTag } from 'typescript';
             </p>
         </div>
     </div>
-    <div v-if="personId && radioId">
-        <form class="rows-center" @submit.prevent="checkoutRadio">
-            <input type="text" v-model="checkoutComment" placeholder="Comment (optional)"/>
+    <h1>Actions</h1>
+    <div class="actions">
+        <form v-if="personId && radioId && radioData?.holder?.pid !== personId" class="rows-center" @submit.prevent="checkoutRadio">
+            <input type="text" v-model="checkoutComment" placeholder="Comment for check out or transfer (optional)"/>
             <input
                 type="datetime-local"
                 :value="dateToDT(new Date(checkoutAt))"
                 @input="(event) => checkoutAt = (new Date(event.target.value)).getTime()"
             />
-            &nbsp;<button type="submit" class="use">Check Out</button>
+            &nbsp;<button type="submit" class="use">
+                {{ radioData?.holder?.pid ? 'Transfer' : 'Check Out' }}
+            </button>
+        </form>
+        <form v-if="radioData?.holder?.pid && radioData?.holder?.pid === personId" class="rows-center" @submit.prevent="returnRadio">
+            <input type="text" v-model="returnComment" placeholder="Comment for check in (optional)"/>
+            <input
+                type="datetime-local"
+                :value="dateToDT(new Date(returnAt))"
+                @input="(event) => returnAt = (new Date(event.target.value)).getTime()"
+            />
+            <button class="dangerous" type="submit">Check In</button>
+        </form>
+        <form v-if="radioData?.moveComments" class="rows-center" @submit.prevent="postComment">
+            <textarea name="comment" placeholder="Comment on last movement" v-model="customComment"></textarea>
+            <button type="submit" class="use">Post</button>
         </form>
     </div>
 </template>
 
 <style>
+.loginStatus {
+    text-align: center;
+}
+
 .columns {
     display: flex;
     justify-content: space-evenly;
@@ -225,5 +243,14 @@ span.emph {
 
 span.error {
     color: #f00;
+}
+    
+.actions > * {
+    margin: auto;
+    max-width: 45rem;
+}
+    
+.actions > * + * {
+    margin-top: 3lh;
 }
 </style>

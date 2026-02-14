@@ -14,7 +14,7 @@
 
 <template>
   <div v-if="!loginUid">
-    <p>Select your name and sign in below.</p>
+    <h1>Log In</h1>
     <SearchTable
       rest-path="/api/people"
       :fields="['dispName', 'realName']"

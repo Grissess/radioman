@@ -3,20 +3,23 @@
 </script>
 
 <template>
-    <table class="status">
-        <thead>
-            <tr>
-                <th>Radio</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="row in data?.rows">
-                <td>{{ row.identifier }}</td>
-                <td :class="row.class">{{ row.status }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div>
+        <h1>Status</h1>
+        <table class="status">
+            <thead>
+                <tr>
+                    <th>Radio</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="row in data?.rows">
+                    <td>{{ row.identifier }}</td>
+                    <td :class="row.class">{{ row.status }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </template>
 
 <style>
@@ -37,6 +40,7 @@ table.status {
     border: 2px solid #000;
     border-collapse: collapse;
     font-family: monospace;
+    margin: auto;
 }
 
 table.status td, table.status th {

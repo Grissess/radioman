@@ -132,6 +132,7 @@
 .datatable table {
   border: 2px solid #000;
   border-collapse: collapse;
+  margin: auto;
 }
 
 .datatable td, .datatable th {
@@ -149,6 +150,11 @@ button {
 
 button.delete {
   background-color: #700;
+  color: #fff;
+}
+
+button.dangerous {
+  background-color: #707;
   color: #fff;
 }
 
